@@ -1,7 +1,9 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT ||3001;
 
+app.use(cors());
 app.use(express.json());
 
 let notes = [
@@ -88,6 +90,20 @@ app.post("/api/notes", (request, response) => {
 
   response.status(201).json(note);
 });
+
+app.put("/api/notes/:id", (request, response) => {
+  const id = parseInt(request.params.id);
+  const body = request.body;
+
+  const note = {
+    content: body.content,
+    important: body.important,
+  };
+
+  notes = notes.map((note) => (note.id === id ? note : note));
+
+  response.status(200).json(note);
+})
 
 app.get("/api/persons", (request, response) => {
   response.status(200).json(persons);
