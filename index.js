@@ -7,126 +7,136 @@ app.use(express.json());
 let notes = [
   {
     id: 1,
-    content: "HTML is easy",
+    content: "Browser can execute only Javascript",
     important: true,
   },
   {
     id: 2,
-    content: "Browser can execute only Javascript",
+    content: "CSS is hard",
     important: false,
   },
   {
     id: 3,
-    content: "HTML is easy",
+    content: "Server programming is cool",
     important: true,
   },
 ];
 
 let persons = [
+  {
+    id: 1,
+    name: "Ellen Mae Nerosa",
+    number: "+63950-6101-901",
+  },
+  {
+    id: 2,
+    name: "Juan Dela Cruz",
+    number: "+63909-2453-909",
+  },
+  {
+    id: 3,
+    name: "Ramon Gonzales",
+    number: "+63906-768-768",
+  },
 
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    },
+  {
+    id: 4,
+    name: "Carlo Dacuyan",
+    number: "+63996-234-890",
+  },
 ];
 
+function generateId(db) {
+  const maxId = db.length > 0 ? Math.max(...db.map((d) => d.id)) : 0;
+
+  return maxId + 1;
+}
 app.get("/", (request, response) => {
-  response.send("<h1>Hello, Express!!</h1>");
+  response.send("<h1>Hello, Nodemon!</h1>");
 });
-
-app.get("/api/info", (request, response) => {
-  response.send(`<p>Phonebook has info for ${persons.length} people</p>`)
-});
-
 app.get("/api/notes", (request, response) => {
   response.status(200).json(notes);
 });
-
 app.get("/api/notes/:id", (request, response) => {
   const id = parseInt(request.params.id);
   const note = notes.find((note) => note.id === id);
 
   response.status(200).json(note);
 });
-
 app.delete("/api/notes/:id", (request, response) => {
   const id = parseInt(request.params.id);
-  notes = notes.filter((note) => note.id === id);
+  notes = notes.filter((note) => note.id !== id);
 
   response.status(204).end();
 });
-
 app.post("/api/notes", (request, response) => {
-  const maxId = notes.length + 1;
-  const note = request.body;
-  note.id = maxId;
+  const body = request.body;
+
+  if (!body.content) {
+    return response.status(400).json({
+      error: "content missing",
+    });
+  }
+
+  const note = {
+    content: body.content,
+    important: body.important || false,
+    id: generateId(notes),
+  };
 
   notes = notes.concat(note);
-  response.json(note);
+
+  response.status(201).json(note);
 });
 
 app.get("/api/persons", (request, response) => {
   response.status(200).json(persons);
 });
 
-
 app.get("/api/persons/:id", (request, response) => {
   const id = parseInt(request.params.id);
   const person = persons.find((person) => person.id === id);
 
   response.status(200).json(person);
-  
 });
 
 app.delete("/api/persons/:id", (request, response) => {
   const id = parseInt(request.params.id);
-  persons = persons.filter((person) => person.id === id);
+  persons = persons.filter((person) => person.id !== id);
 
   response.status(204).end();
 });
 
 app.post("/api/persons", (request, response) => {
-  const {name, number} = request.body;
+  const { name, number } = request.body;
 
   if (!name || !number) {
     return response.status(400).json({
-      error: "name or number missing"
+      error: "name or number missing",
     });
   }
-  const checkNameExists = persons.some((person) => person.name === name);
+
+  const nameExists = persons.some((person) => person.name === name);
 
   if (nameExists) {
     return response.status(400).json({
-      error: "name must be unique"
+      error: "name must be unique",
     });
   }
-
   const person = {
     name,
     number,
     id: generateId(persons),
   };
-  
+
   persons = persons.concat(person);
   response.status(201).json(person);
 });
 
+app.get("/info", (request, response) => {
+  response.send(`<p>Phonebook has info for ${persons.length} people<p>`);
+});
+
 app.listen(PORT, () => {
-  console.log(`Server is now running on port ${PORT}`);
+  console.log(`Server is now running on Port ${PORT}`);
 });
