@@ -25,8 +25,8 @@ let notes = [
 let persons = [
   {
     id: 1,
-    name: "Ellen Mae Nerosa",
-    number: "+63950-6101-901",
+    name: "Ruth Joy Tolentino",
+    number: "+63966-5807-599",
   },
   {
     id: 2,
